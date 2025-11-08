@@ -1,6 +1,9 @@
+//Root component with search and todo list
+
 import {Component} from '@angular/core';
 import {Todo, TodoService} from "./todo.service";
 import {Observable} from "rxjs";
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +16,7 @@ import {Observable} from "rxjs";
     <div class="list">
       <label for="search">Search...</label>
       <input id="search" type="text">
-      <app-progress-bar></app-progress-bar>
+      <app-progress-bar *ngIf = "isLoading" [isLoading]="isLoading"></app-progress-bar>
       <app-todo-item *ngFor="let todo of todos$ | async" [item]="todo"></app-todo-item>
     </div>
   `,
@@ -22,8 +25,11 @@ import {Observable} from "rxjs";
 export class AppComponent {
 
   readonly todos$: Observable<Todo[]>;
+  isLoading = true;
 
   constructor(todoService: TodoService) {
-    this.todos$ = todoService.getAll();
+    this.todos$ = todoService.getAll().pipe(
+      finalize(() => this.isLoading = false)
+    );
   }
 }

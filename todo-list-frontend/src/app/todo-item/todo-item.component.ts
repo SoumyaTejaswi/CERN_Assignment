@@ -1,3 +1,4 @@
+//Component for rendering individual todo items
 import {Component, Input} from '@angular/core';
 import {Todo} from "../todo.service";
 

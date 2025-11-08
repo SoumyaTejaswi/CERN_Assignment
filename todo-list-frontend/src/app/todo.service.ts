@@ -1,3 +1,4 @@
+//Service providing mock data (currently using fake data, needs backend integration)
 import {Injectable} from '@angular/core';
 import {Observable, of} from "rxjs";
 import {delay, map} from "rxjs/operators";
