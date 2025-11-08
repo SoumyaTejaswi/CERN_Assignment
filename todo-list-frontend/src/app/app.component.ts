@@ -16,23 +16,38 @@ import { finalize,map} from 'rxjs/operators';
     <div class="list">
       <label for="search">Search...</label>
       <input id="search" type="text" (input)="onSearchChange($event)">
-      <app-progress-bar *ngIf = "isLoading" [isLoading]="isLoading"></app-progress-bar>
-      <app-todo-item *ngFor="let todo of todos$ | async" [item]="todo"></app-todo-item>
+      
+      <app-progress-bar *ngIf="isLoading || isDeleting" [isLoading]="isLoading || isDeleting"></app-progress-bar>
+      
+      <app-todo-item 
+        *ngFor="let todo of todos$ | async" 
+        [item]="todo"
+        (delete)="onDeleteTodo($event)">
+      </app-todo-item>
     </div>
   `,
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
 
-  readonly todos$: Observable<Todo[]>;
+  todos$!: Observable<Todo[]>;
   isLoading = true;
+  isDeleting = false;
   searchTerm = new BehaviorSubject<string>('');//Adding a new BehaviorSubject to store the search term.
 
-  constructor(todoService: TodoService) {
-    this.todos$ = todoService.getAll().pipe(
+  constructor(private todoService: TodoService) {
+    this.loadTodos();
+  }
+
+  loadTodos(): void {
+    this.isLoading = true;//show loading bar for initial fetch
+
+    const sourceTodos$ = this.todoService.getAll().pipe(
       finalize(() => this.isLoading = false)
     );
-    this.todos$ = combineLatest([this.todos$, this.searchTerm]).pipe(//filtering logic
+
+    
+    this.todos$ = combineLatest([sourceTodos$, this.searchTerm]).pipe(
       map(([todos, searchTerm]) => {
         if(!searchTerm.trim()) {
           return todos;
@@ -43,8 +58,31 @@ export class AppComponent {
       })
     );
   }
+
   onSearchChange(event : Event ): void {//method to handle input search change
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm.next(value);
   }
+
+  
+  onDeleteTodo(id: number): void {
+    this.isDeleting = true;
+
+    this.todoService.remove(id).subscribe({
+      next : () => {
+        
+        console.log(`Todo item with id ${id} deleted successfully.`);
+        this.isDeleting = false;
+
+        //for running the entire observable chain,fetching new list
+        this.loadTodos();
+      },
+      error : (err) => {
+        
+        console.error('Failed to delete todo item', err);
+        this.isDeleting = false;//Hide deletion loading state
+      }
+    });
+  }
+
 }
