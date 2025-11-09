@@ -57,3 +57,40 @@ Provide the API call endpoints with the help of Spring (entity, repository, cont
 
 #### todo-list-frontend
 Using the backend API, replace the method definitions at todo.service.ts with actual API calls
+---
+#Changes by Soumya Tejaswi Vadlamani
+
+# How to Run the Application
+
+## Prerequisites
+- Java JDK 8 or higher
+- Node.js and npm installed
+- Angular CLI (install with: `npm install -g @angular/cli@12.2.2`)
+
+## Running the Backend
+
+Navigate to the project root and run:
+
+```bash
+./gradlew :todo-list-backend:bootRun
+```
+
+The backend server will start on **http://localhost:8099/api/**
+
+## Running the Frontend
+
+In a new terminal, navigate to the frontend directory:
+
+```bash
+cd todo-list-frontend
+npm install  # Only needed the first time when dependencies are not installed
+npm start
+```
+
+The frontend will start on **http://localhost:4200**
+
+## Access the Application
+
+Open your browser and navigate to: **http://localhost:4200**
+
+**Note:** Both backend and frontend must be running simultaneously. The frontend uses a proxy to communicate with the backend API.
